@@ -14,7 +14,7 @@ class ExtractText extends ElementAction
 {
     public static function displayName(): string
     {
-        return Craft::t('_text-extractor', 'Extract Text');
+        return Craft::t('text-extractor', 'Extract Text');
     }
 
     public function getTriggerHtml(): ?string

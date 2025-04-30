@@ -35,7 +35,7 @@ class TextExtractor extends Plugin
     {
         parent::init();
 
-        Craft::$app->onInit(function() {
+        Craft::$app->onInit(function () {
             $this->attachEventHandlers();
         });
     }
@@ -53,7 +53,7 @@ class TextExtractor extends Plugin
      */
     protected function settingsHtml(): ?string
     {
-        return Craft::$app->view->renderTemplate('_text-extractor/_settings.twig', [
+        return Craft::$app->view->renderTemplate('text-extractor/_settings.twig', [
             'plugin' => $this,
             'settings' => $this->getSettings(),
         ]);
@@ -64,7 +64,7 @@ class TextExtractor extends Plugin
         Event::on(
             Asset::class,
             Asset::EVENT_REGISTER_ACTIONS,
-            function(RegisterElementActionsEvent $event) {
+            function (RegisterElementActionsEvent $event) {
                 $event->actions[] = ExtractTextAction::class;
             }
         );
@@ -72,7 +72,7 @@ class TextExtractor extends Plugin
         Event::on(
             Asset::class,
             Asset::EVENT_AFTER_SAVE,
-            function(ModelEvent $event) {
+            function (ModelEvent $event) {
                 $asset = $event->sender;
                 $scenario = $asset->getScenario();
                 if (
