@@ -5,7 +5,9 @@ namespace mostlyserious\crafttextextractor\elements\actions;
 use Craft;
 use craft\base\ElementAction;
 use craft\elements\Asset;
+use craft\elements\db\ElementQueryInterface;
 use mostlyserious\crafttextextractor\jobs\Extract as ExtractJob;
+use mostlyserious\crafttextextractor\TextExtractor as Plugin;
 
 /**
  * Extract Text element action
@@ -29,7 +31,14 @@ class ExtractText extends ElementAction
 
                     // Return whether the action should be available depending on which elements are selected
                     validateSelection: (selectedItems) => {
-                      return true;
+                        return Array.from(selectedItems).every((item) => {
+                            const el = item.querySelector('[data-extract-text="true"]');
+                            if (!el) {
+                                return false;
+                            }
+
+                            return true;
+                        });
                     },
 
                     // Uncomment if the action should be handled by JavaScript:
@@ -46,12 +55,18 @@ class ExtractText extends ElementAction
         return null;
     }
 
-    public function performAction(Craft\elements\db\ElementQueryInterface $query): bool
+    public function performAction(ElementQueryInterface $query): bool
     {
         $elements = $query->all();
 
         foreach ($elements as $element) {
-            if ($element instanceof Asset && $element->kind === 'pdf') {
+            if (
+                $element instanceof Asset &&
+                in_array(
+                    $element->kind,
+                    Plugin::getInstance()->getSettings()->supportedExtensions
+                )
+            ) {
                 Craft::$app->queue->push(new ExtractJob([
                     'assetId' => $element->id,
                 ]));

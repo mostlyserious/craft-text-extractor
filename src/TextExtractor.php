@@ -3,11 +3,13 @@
 namespace mostlyserious\crafttextextractor;
 
 use Craft;
+use craft\base\Element;
 use craft\base\Model;
 use craft\base\Plugin;
 use craft\elements\Asset;
 use craft\events\ModelEvent;
 use craft\events\RegisterElementActionsEvent;
+use craft\events\RegisterElementHtmlAttributesEvent;
 use mostlyserious\crafttextextractor\elements\actions\ExtractText as ExtractTextAction;
 use mostlyserious\crafttextextractor\jobs\Extract as ExtractJob;
 use mostlyserious\crafttextextractor\models\Settings;
@@ -16,8 +18,9 @@ use yii\base\Event;
 /**
  * Text Extractor plugin
  *
+ * @property Settings $settings
  * @method static TextExtractor getInstance()
- * @method        Settings         getSettings()
+ * @method Settings getSettings()
  */
 class TextExtractor extends Plugin
 {
@@ -61,6 +64,27 @@ class TextExtractor extends Plugin
 
     private function attachEventHandlers(): void
     {
+        /**
+         * Adds a custom data attribute to Assets to validate the Extract Text action.
+         */
+        Event::on(
+            Asset::class,
+            Element::EVENT_REGISTER_HTML_ATTRIBUTES,
+            function (RegisterElementHtmlAttributesEvent $event) {
+                /** @var Asset $element */
+                $element = $event->sender;
+                $supportedKinds = self::getInstance()->getSettings()->supportedExtensions;
+                if (in_array(
+                    $element->kind,
+                    $supportedKinds
+                )) {
+                    $event->htmlAttributes = [
+                        'data-extract-text' => 'true',
+                    ];
+                }
+            }
+        );
+
         Event::on(
             Asset::class,
             Asset::EVENT_REGISTER_ACTIONS,
@@ -73,11 +97,12 @@ class TextExtractor extends Plugin
             Asset::class,
             Asset::EVENT_AFTER_SAVE,
             function (ModelEvent $event) {
+                /** @var Asset $asset */
                 $asset = $event->sender;
+                $supportedKinds = self::getInstance()->getSettings()->supportedExtensions;
                 $scenario = $asset->getScenario();
                 if (
-                    $asset &&
-                    $asset->kind === 'pdf' &&
+                    in_array($asset->kind, $supportedKinds) &&
                     (
                         $scenario === Asset::SCENARIO_CREATE ||
                         $scenario === Asset::SCENARIO_REPLACE
