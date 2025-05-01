@@ -1,8 +1,25 @@
 # Text Extractor
 
-A tool to extract text from documents.
+A tool to extract text from documents and insert it into Craft CMS Asset Elements.
 
 ## Requirements
 
 This plugin requires Craft CMS 5.0.0 or later, and PHP 8.2 or later.
 
+## Features
+- Supports PDF (.pdf) and MS Word (.docx) files
+    - Password-protected PDF files are [not supported](https://github.com/smalot/pdfparser/blob/master/doc/Usage.md#pdf-encryption).
+- Extracts text on Asset creation and when Asset files are replaced
+- Includes an Action to extract text from the Assets index view.
+
+## Configuration
+Extracted text goes in to the custom field handle defined by the plugin. Default to `body`.
+
+This must be a Text field or CKEditor field.
+
+## Usage
+- Upload supported file kinds and enjoy!
+
+## Thank you to the following packages:
+- [smalot/pdfparser](https://github.com/smalot/pdfparser)
+- 

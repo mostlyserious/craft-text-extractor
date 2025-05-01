@@ -32,7 +32,7 @@ class ExtractText extends ElementAction
                     // Return whether the action should be available depending on which elements are selected
                     validateSelection: (selectedItems) => {
                         return Array.from(selectedItems).every((item) => {
-                            const el = item.querySelector('[data-extract-text="true"]');
+                            const el = item.querySelector('[data-can-extract-text="true"]');
                             if (!el) {
                                 return false;
                             }

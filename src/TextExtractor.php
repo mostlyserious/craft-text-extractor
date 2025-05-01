@@ -13,12 +13,14 @@ use craft\events\RegisterElementHtmlAttributesEvent;
 use mostlyserious\crafttextextractor\elements\actions\ExtractText as ExtractTextAction;
 use mostlyserious\crafttextextractor\jobs\Extract as ExtractJob;
 use mostlyserious\crafttextextractor\models\Settings;
+use mostlyserious\crafttextextractor\services\Extractor;
 use yii\base\Event;
 
 /**
  * Text Extractor plugin
  *
  * @property Settings $settings
+ * @property Extractor $extractor
  * @method static TextExtractor getInstance()
  * @method Settings getSettings()
  */
@@ -30,7 +32,9 @@ class TextExtractor extends Plugin
     public static function config(): array
     {
         return [
-            'components' => [],
+            'components' => [
+                'extractor' => Extractor::class,
+            ],
         ];
     }
 
@@ -50,17 +54,17 @@ class TextExtractor extends Plugin
 
     /*
      * Note: Control Panel settings are not used at this time.
-     * The field handle to receive the extracted text can be configured here:
+     * The default field handle to receive extracted text is defined here:
      *
      * `./plugins/text-extractor/src/models/Settings.php`
      */
-    protected function settingsHtml(): ?string
-    {
-        return Craft::$app->view->renderTemplate('text-extractor/_settings.twig', [
-            'plugin' => $this,
-            'settings' => $this->getSettings(),
-        ]);
-    }
+    // protected function settingsHtml(): ?string
+    // {
+    //     return Craft::$app->view->renderTemplate('text-extractor/_settings.twig', [
+    //         'plugin' => $this,
+    //         'settings' => $this->getSettings(),
+    //     ]);
+    // }
 
     private function attachEventHandlers(): void
     {
@@ -71,15 +75,11 @@ class TextExtractor extends Plugin
             Asset::class,
             Element::EVENT_REGISTER_HTML_ATTRIBUTES,
             function (RegisterElementHtmlAttributesEvent $event) {
-                /** @var Asset $element */
-                $element = $event->sender;
-                $supportedKinds = self::getInstance()->getSettings()->supportedExtensions;
-                if (in_array(
-                    $element->kind,
-                    $supportedKinds
-                )) {
+                /** @var Asset $asset */
+                $asset = $event->sender;
+                if (self::getInstance()->extractor->isSupportedKind($asset)) {
                     $event->htmlAttributes = [
-                        'data-extract-text' => 'true',
+                        'data-can-extract-text' => 'true',
                     ];
                 }
             }
@@ -99,10 +99,9 @@ class TextExtractor extends Plugin
             function (ModelEvent $event) {
                 /** @var Asset $asset */
                 $asset = $event->sender;
-                $supportedKinds = self::getInstance()->getSettings()->supportedExtensions;
                 $scenario = $asset->getScenario();
                 if (
-                    in_array($asset->kind, $supportedKinds) &&
+                    self::getInstance()->extractor->isSupportedKind($asset) &&
                     (
                         $scenario === Asset::SCENARIO_CREATE ||
                         $scenario === Asset::SCENARIO_REPLACE
