@@ -13,7 +13,19 @@ This plugin requires Craft CMS 5.0.0 or later, and PHP 8.2 or later.
 - Includes an Action to extract text from the Assets index view.
 
 ## Configuration
-Extracted text goes in to the custom field handle defined by the plugin. Default to `body`.
+Extracted document text is inserted into the custom field handle defined by the plugin. The default field handle is `body`.
+
+You can customize the handle by adding a plugin config file.
+
+```php
+<?php
+
+/* @note config/text-extractor.php */
+
+return [
+    'fieldHandle' => 'myCustomHandle'
+];
+```
 
 This must be a Text field or CKEditor field.
 
