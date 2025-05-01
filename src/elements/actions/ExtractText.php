@@ -62,14 +62,9 @@ class ExtractText extends ElementAction
         foreach ($elements as $element) {
             if (
                 $element instanceof Asset &&
-                in_array(
-                    $element->kind,
-                    Plugin::getInstance()->getSettings()->supportedExtensions
-                )
+                Plugin::getInstance()->extractor->isSupportedKind($element)
             ) {
-                Craft::$app->queue->push(new ExtractJob([
-                    'assetId' => $element->id,
-                ]));
+                Craft::$app->queue->push(new ExtractJob($element->id));
             }
         }
 

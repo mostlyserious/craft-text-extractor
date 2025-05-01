@@ -10,10 +10,10 @@ use yii\base\Exception;
 
 class Extract extends BaseJob
 {
-    public int $assetId;
+    public $assetId;
     protected ?Asset $asset;
 
-    public function __construct($assetId)
+    public function __construct(int $assetId)
     {
         $this->assetId = $assetId;
 
