@@ -5,11 +5,11 @@ namespace mostlyserious\crafttextextractor\services;
 use Craft;
 use craft\base\Component;
 use craft\elements\Asset;
+use craft\helpers\StringHelper;
+use Label305\DocxExtractor\Basic\BasicExtractor;
 use mostlyserious\crafttextextractor\TextExtractor as Plugin;
 use Smalot\PdfParser\Config as PdfParserConfig;
 use Smalot\PdfParser\Parser as PdfParser;
-use Label305\DocxExtractor\Basic\BasicExtractor;
-use craft\helpers\StringHelper;
 
 class Extractor extends Component
 {
