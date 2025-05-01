@@ -10,7 +10,7 @@ use craft\base\Model;
 class Settings extends Model
 {
     public $fieldHandle = 'body';
-    public $supportedExtensions = ['pdf'];
+    public $supportedExtensions = ['pdf', 'docx'];
 
     public function defineRules(): array
     {

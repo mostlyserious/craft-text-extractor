@@ -30,8 +30,12 @@ return [
 This must be a Text field or CKEditor field.
 
 ## Usage
-- Upload supported file kinds and enjoy!
+- Upload supported file extensions and enjoy!
 
 ## Thank you to the following packages:
 - [smalot/pdfparser](https://github.com/smalot/pdfparser)
-- 
+- [Label305/DocxExtractor](https://github.com/Label305/DocxExtractor)
+
+## Future Plans and Other Document Parsers
+
+The [PHPWord](https://github.com/PHPOffice/PHPWord) library ([docs](https://phpoffice.github.io/PHPWord/index.html)) and [PHPOffice](https://github.com/PHPOffice) tools like promising, but were more complex than needed for this project at this time.

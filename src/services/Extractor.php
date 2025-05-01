@@ -8,13 +8,15 @@ use craft\elements\Asset;
 use mostlyserious\crafttextextractor\TextExtractor as Plugin;
 use Smalot\PdfParser\Config as PdfParserConfig;
 use Smalot\PdfParser\Parser as PdfParser;
+use Label305\DocxExtractor\Basic\BasicExtractor;
+use craft\helpers\StringHelper;
 
 class Extractor extends Component
 {
     public function extractText(Asset $asset): string
     {
-        if (!$this->isSupportedKind($asset)) {
-            throw new \Exception('File type "' . $asset->kind . '" not supported.');
+        if (!$this->isSupportedExtension($asset)) {
+            throw new \Exception('File type "' . $asset->extension . '" not supported.');
         }
 
         /** Download a temporary copy of the Asset's file to work with. */
@@ -27,12 +29,12 @@ class Extractor extends Component
         curl_exec($ch);
         curl_close($ch);
 
-        if ($asset->kind === 'pdf') {
+        if ($asset->extension === 'pdf') {
             $text = $this->_extractFromPdf($tempFilePath);
-        } elseif ($asset->kind === 'docx') {
+        } elseif ($asset->extension === 'docx') {
             $text = $this->_extractFromWord($tempFilePath);
         } else {
-            throw new \Exception('No extractor available for file kind "' . $asset->kind . '"');
+            throw new \Exception('No extractor available for file extension "' . $asset->extension . '"');
         }
 
         /** Remove the temp file. */
@@ -54,14 +56,25 @@ class Extractor extends Component
 
     private function _extractFromWord(string $path): string
     {
-        // @todo
-        return '';
+        $extractor = new BasicExtractor();
+        $mapFileName = 'temp-mapping-' . StringHelper::UUID() . '.docx';
+        $mappingFilePath = Craft::$app->getPath()->getTempPath() . DIRECTORY_SEPARATOR . $mapFileName;
+        $mapping = $extractor->extractStringsAndCreateMappingFile(
+            $path,
+            $mappingFilePath
+        );
+
+        $text = implode(PHP_EOL, $mapping);
+
+        unlink($mappingFilePath);
+
+        return $text;
     }
 
-    public function isSupportedKind(Asset $asset): bool
+    public function isSupportedExtension(Asset $asset): bool
     {
         return in_array(
-            $asset->kind,
+            $asset->extension,
             Plugin::getInstance()->getSettings()->supportedExtensions
         );
     }
