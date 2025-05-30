@@ -40,7 +40,7 @@ class Extractor extends Component
         /** Remove the temp file. */
         unlink($tempFilePath);
 
-        return $text;
+        return mb_convert_encoding($text, 'UTF-8', mb_detect_encoding($text));
     }
 
     private function _extractFromPdf(string $path): string
